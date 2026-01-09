@@ -1,11 +1,11 @@
 from django.shortcuts import render
-from .serializers import CarsSerializer
-from .models import Cars
+from app.serializers import CarsSerializer
+from app.models import Cars
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 
-class CarView(APIView):
+class ListView(APIView):
     def get(self, request):
         cars = Cars.objects.all()
         serializer = CarsSerializer(cars, many=True)
@@ -17,6 +17,26 @@ class CarView(APIView):
         }
         return Response(data)
     
+        
+ 
+class DetailView(APIView):
+    def get(self, request, pk):
+        car = Cars.objects.filter(pk=pk).first()
+        serializer = CarsSerializer(car)
+        if car:
+            data = {
+                'status': status.HTTP_200_OK,
+                'message': 'Car detail',
+                'product': serializer.data
+            }
+            return Response(data)
+        return Response({
+            "success": False, 
+            'message':'bunday maxsulot mavjud emas',
+            'status': status.HTTP_204_NO_CONTENT
+            })
+        
+class CreateView(APIView):
     def post(self, request):
         serializer = CarsSerializer(data=request.data)
         if serializer.is_valid():
@@ -35,25 +55,7 @@ class CarView(APIView):
             }
         return Response(data)
     
-    
-class CarUpdateDeleteDetail(APIView):
-    def get(self, request, pk):
-        car = Cars.objects.filter(pk=pk).first()
-        serializer = CarsSerializer(car)
-        if car:
-            data = {
-                'status': status.HTTP_200_OK,
-                'message': 'Car detail',
-                'product': serializer.data
-            }
-            return Response(data)
-        return Response({
-            "success": False, 
-            'message':'bunday maxsulot mavjud emas',
-            'status': status.HTTP_204_NO_CONTENT
-            })
-        
-        
+class UpdateView(APIView):
     def put(self, request, pk):
         car = Cars.objects.filter(pk=pk).first()
         serializer = CarsSerializer(car, data=request.data)
@@ -91,7 +93,9 @@ class CarUpdateDeleteDetail(APIView):
                 'product': serializer.data
             }
             return Response(data)
-        
+
+
+class DeleteView(APIView):
     def delete(self, request, pk):
         car = Cars.objects.filter(pk=pk).first()
         serializer = CarsSerializer(car)
@@ -103,4 +107,3 @@ class CarUpdateDeleteDetail(APIView):
                 'product': serializer.data
             }
             return Response(data)
-        
